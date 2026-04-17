@@ -1,14 +1,15 @@
-import os
+import argparse
 from pathlib import Path
 
 from groq import Groq
 
-from smartlog.parser import SmartLogParser
+from parser import SmartLogParser
+from config import GROQ_API_KEY
 
 
 class Analyzer:
     def __init__(self, filename):
-        self.client = Groq(api_key=os.environ['GROQ_API_KEY'])
+        self.client = Groq(api_key=GROQ_API_KEY)
         self.path = Path(filename)
         self.data = SmartLogParser(self.path).parse()
         self.data_str = ""
@@ -66,5 +67,11 @@ class Analyzer:
 
 
 if __name__ == "__main__":
-    analyzer = Analyzer("../data/sample.log")
+    parser = argparse.ArgumentParser(
+        prog='SmartLog',
+        description='Analyzer for Log-Files',
+    )
+    parser.add_argument('filename', type=str)
+    args = parser.parse_args()
+    analyzer = Analyzer(args.filename)
     analyzer.ask()
