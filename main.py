@@ -2,6 +2,7 @@ import tempfile
 
 from fastapi import FastAPI, UploadFile, File
 from pydantic import BaseModel
+from fastapi.staticfiles import StaticFiles
 
 from smartlog.analyzer import Analyzer
 
@@ -10,6 +11,7 @@ class AnalyzeRequest(BaseModel):
     file_path: str
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
 def read_root():

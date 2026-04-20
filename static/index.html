@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SmartLog Analyzer</title>
+</head>
+<body>
+<div id="upload">
+    <label for="log"><h2>Logfile hochladen</h2></label>
+    <input type="file" id="log" name="logfile" accept=".log"/>
+    <br>
+    <button id="log-button">Bestätigen</button>
+</div>
+<div id="result">
+
+</div>
+<script>
+    document.getElementById('log-button').addEventListener('click', async () => {
+        console.log("Submit!")
+        const log = document.getElementById('log').files[0];
+        const form = new FormData();
+        form.append("file", log)
+        const response = await fetch("/upload", {
+            method: "POST",
+            body: form
+        })
+        const data = await response.json()
+        console.log(data['file_path'])
+
+        const analyze_response = await fetch("/analyze", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({'file_path': data['file_path']})
+        })
+
+        const result = await analyze_response.json()
+
+        document.getElementById('result').innerText = result['result']
+    })
+</script>
+</body>
+</html>
