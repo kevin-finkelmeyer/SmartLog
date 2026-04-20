@@ -3,8 +3,8 @@ from pathlib import Path
 
 from groq import Groq
 
-from parser import SmartLogParser
-from config import GROQ_API_KEY
+from smartlog.config import GROQ_API_KEY
+from smartlog.parser import SmartLogParser
 
 
 class Analyzer:
@@ -63,7 +63,7 @@ class Analyzer:
             max_tokens=250,
             temperature=0.1
         )
-        print(chat_completion.choices[0].message.content)
+        return chat_completion.choices[0].message.content
 
 
 if __name__ == "__main__":
@@ -74,4 +74,4 @@ if __name__ == "__main__":
     parser.add_argument('filename', type=str)
     args = parser.parse_args()
     analyzer = Analyzer(args.filename)
-    analyzer.ask()
+    print(analyzer.ask())
