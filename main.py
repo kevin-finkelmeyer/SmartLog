@@ -1,6 +1,13 @@
 import tempfile
 
 from fastapi import FastAPI, UploadFile, File
+from pydantic import BaseModel
+
+from smartlog.analyzer import Analyzer
+
+
+class AnalyzeRequest(BaseModel):
+    file_path: str
 
 app = FastAPI()
 
@@ -14,3 +21,10 @@ async def upload(file: UploadFile = File(...)):
     tmp.file.write(await file.read())
 
     return {"file_path": tmp.name}
+
+@app.post("/analyze")
+async def analyze(request: AnalyzeRequest):
+    path = request.file_path
+    a = Analyzer(path)
+    result = a.ask()
+    return {"result": result}
