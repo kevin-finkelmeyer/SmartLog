@@ -2,41 +2,49 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <script src="https://cdn.tailwindcss.com"></script>
     <title>SmartLog Analyzer</title>
 </head>
 <body>
-<div id="upload">
-    <label for="log"><h2>Logfile hochladen</h2></label>
-    <input type="file" id="log" name="logfile" accept=".log"/>
-    <br>
-    <button id="log-button">Bestätigen</button>
+
+<header class="bg-violet-500 shadow-md sticky top-0 z-50 bg-opacity-90 backdrop-blur-md">
+    <div class="max-w-7x1l mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+            <div class="flex-shrink-0 flex items-center">
+                <span class="text-3xl font-bold text-gray-100">SmartLog</span>
+            </div>
+        </div>
+    </div>
+</header>
+<div class="px-5">
+    <div class="text-center mt-5 mb-5">
+        <h1 class="font-bold text-3xl text-gray-800">SmartLog</h1>
+        <p class="text-lg text-gray-700">KI-gestützter Log-Analyzer</p>
+    </div>
+    <div class="flex flex-col md:flex-row gap-4">
+        <div class="w-full max-h-fit bg-gray-200 rounded-xl shadow-lg overflow-hidden border px-3 py-3 border-gray-100">
+            <p class="p-1 font-bold text-gray-500">Upload</p>
+            <div class="min-h-content bg-gray-100 flex flex-col items-center py-4 rounded-xl">
+                <div class="flex flex-col items-center" id="upload">
+                    <label for="log" class="cursor-pointer bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300">📁 Logfile
+                        auswählen</label>
+                    <input class="mt-5 hidden" type="file" id="log" name="logfile" accept=".log"/>
+                    <span id="file-name" class="mt-5"></span>
+                    <button class="mt-5 bg-violet-500 text-white rounded-lg px-4 py-2 hover:bg-violet-600"
+                            id="log-button">
+                        Bestätigen
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="w-full bg-gray-200 rounded-xl shadow-lg overflow-hidden border px-3 py-3 border-gray-100">
+            <p class="p-1 font-bold text-gray-500">Ergebnis</p>
+            <div id="result">
+            </div>
+        </div>
+    </div>
 </div>
-<div id="result">
-
-</div>
-<script>
-    document.getElementById('log-button').addEventListener('click', async () => {
-        console.log("Submit!")
-        const log = document.getElementById('log').files[0];
-        const form = new FormData();
-        form.append("file", log)
-        const response = await fetch("/upload", {
-            method: "POST",
-            body: form
-        })
-        const data = await response.json()
-        console.log(data['file_path'])
-
-        const analyze_response = await fetch("/analyze", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({'file_path': data['file_path']})
-        })
-
-        const result = await analyze_response.json()
-
-        document.getElementById('result').innerText = result['result']
-    })
+<script src="/static/app.js">
 </script>
 </body>
 </html>
