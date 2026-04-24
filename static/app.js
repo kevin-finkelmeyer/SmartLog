@@ -2,6 +2,7 @@ const logInput = document.getElementById('log');
 const logButton = document.getElementById('log-button');
 const fileNameSpan = document.getElementById('file-name');
 const resultDiv = document.getElementById('result');
+const indicatorDiv = document.getElementById('loading-indicator')
 
 async function uploadFile(log) {
     const form = new FormData();
@@ -55,12 +56,22 @@ function updateResultDiv(result) {
     })
 }
 
+function showIndicator() {
+    indicatorDiv.classList.remove('hidden');
+}
+
+function hideIndicator() {
+    indicatorDiv.classList.add('hidden');
+}
+
 logButton.addEventListener('click', async () => {
     const log = logInput.files[0];
     if (!log) return;
+    showIndicator();
     const data = await uploadFile(log);
     const result = await analyzeFile(data);
     updateResultDiv(result);
+    hideIndicator();
 })
 logInput.addEventListener('change', () => {
     fileNameSpan.innerText = logInput.files[0].name;
