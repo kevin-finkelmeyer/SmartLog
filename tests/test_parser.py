@@ -2,6 +2,26 @@ import pandas as pd
 import pytest
 
 
+@pytest.fixture
+def default_log_file(tmp_path):
+    directory = tmp_path / "logs"
+    directory.mkdir()
+    log_file = directory / "test.log"
+
+    content = """[2026-04-17 01:54:57 [INFO] [auth-service] Running smoothly
+[2026-04-17 01:54:57] [INFO] [dns-service] Connected
+[2026-04-17 01:54:57] [INFO] [db-service] Running smoothly
+[2026-04-17 01:54:57] [INFO] [db-service] Running smoothly
+[2026-04-17 01:54:57] [WARNING] [io-service] no responses
+[2026-04-17 01:54:57 [INFO] [dns-service] Connected
+[2026-04-17 01:54:57] [ERROR] [dns-service] division by zero
+[2026-04-17 01:54:57] [WARNING] [db-service Resources low
+[2026-04-17 01:54:57] [ERROR] [io-service] division by zero"""
+    log_file.write_text(content, encoding="utf-8")
+
+    return log_file
+
+
 def test_single_valid_line(tmp_path):
     directory = tmp_path / "logs"
     directory.mkdir()
@@ -65,27 +85,10 @@ def test_empty_file(tmp_path):
         assert result['level'].iloc[0] == 'ERROR'
 
 
-def test_some_invalid_lines(tmp_path):
-    directory = tmp_path / "logs"
-    directory.mkdir()
-
-    log_file = directory / "test.log"
-
-    content = """[2026-04-17 01:54:57 [INFO] [auth-service] Running smoothly
-[2026-04-17 01:54:57] [INFO] [dns-service] Connected
-[2026-04-17 01:54:57] [INFO] [db-service] Running smoothly
-[2026-04-17 01:54:57] [INFO] [db-service] Running smoothly
-[2026-04-17 01:54:57] [WARNING] [io-service] no responses
-[2026-04-17 01:54:57 [INFO] [dns-service] Connected
-[2026-04-17 01:54:57] [ERROR] [dns-service] division by zero
-[2026-04-17 01:54:57] [WARNING] [db-service Resources low
-[2026-04-17 01:54:57] [ERROR] [io-service] division by zero"""
-
-    log_file.write_text(content, encoding="utf-8")
-
+def test_some_invalid_lines(default_log_file):
     from smartlog.parser import SmartLogParser
 
-    parser = SmartLogParser(str(log_file))
+    parser = SmartLogParser(str(default_log_file))
 
     result = parser.parse()
     assert isinstance(result, pd.DataFrame)
@@ -93,74 +96,20 @@ def test_some_invalid_lines(tmp_path):
     assert result.shape[1] == 4
 
 
-def test_columns(tmp_path):
-    directory = tmp_path / "logs"
-    directory.mkdir()
-
-    log_file = directory / "test.log"
-
-    content = """[2026-04-17 01:54:57] [INFO] [auth-service] Running smoothly
-[2026-04-17 01:54:57] [INFO] [dns-service] Connected
-[2026-04-17 01:54:57] [INFO] [db-service] Running smoothly
-[2026-04-17 01:54:57] [INFO] [db-service] Running smoothly
-[2026-04-17 01:54:57] [WARNING] [io-service] no responses
-[2026-04-17 01:54:57] [INFO] [dns-service] Connected
-[2026-04-17 01:54:57] [ERROR] [dns-service] division by zero
-[2026-04-17 01:54:57] [WARNING] [db-service] Resources low
-[2026-04-17 01:54:57] [ERROR] [io-service] division by zero
-[2026-04-17 01:54:57] [INFO] [dns-service] Disconnected
-[2026-04-17 01:54:57] [INFO] [db-service] Disconnected
-2026-04-17 01:54:57] [WARNING] [io-service] Resources low
-[2026-04-17 01:54:57] [INFO] [db-service] Running smoothly
-[2026-04-17 01:54:57] [INFO] [db-service] Disconnected
-[2026-04-17 01:54:57] [INFO] [io-service] Running smoothly
-[2026-04-17 01:54:57] [WARNING] [dns-service] getting late
-[2026-04-17 01:54:57] [ERROR] [db-service] division by zero
-[2026-04-17 01:54:57] [INFO] [dns-service] Connected
-[2026-04-17 01:54:57] [INFO] [dns-service] Connected
-[2026-04-17 01:54:57] [INFO] [dns-service] Running smoothly"""
-    log_file.write_text(content, encoding="utf-8")
-
+def test_columns(default_log_file):
     from smartlog.parser import SmartLogParser
 
-    parser = SmartLogParser(str(log_file))
+    parser = SmartLogParser(str(default_log_file))
     result = parser.parse()
 
     expected_columns = ['timestamp', 'level', 'service', 'message']
     assert list(result.columns) == expected_columns
 
 
-def test_timestamp_type(tmp_path):
-    directory = tmp_path / "logs"
-    directory.mkdir()
-
-    log_file = directory / "test.log"
-
-    content = """[2026-04-17 01:54:57] [INFO] [auth-service] Running smoothly
-[2026-04-17 01:54:57] [INFO] [dns-service] Connected
-[2026-04-17 01:54:57] [INFO] [db-service] Running smoothly
-[2026-04-17 01:54:57] [INFO] [db-service] Running smoothly
-[2026-04-17 01:54:57] [WARNING] [io-service] no responses
-[2026-04-17 01:54:57] [INFO] [dns-service] Connected
-[2026-04-17 01:54:57] [ERROR] [dns-service] division by zero
-[2026-04-17 01:54:57] [WARNING] [db-service] Resources low
-[2026-04-17 01:54:57] [ERROR] [io-service] division by zero
-[2026-04-17 01:54:57] [INFO] [dns-service] Disconnected
-[2026-04-17 01:54:57] [INFO] [db-service] Disconnected
-[2026-04-17 01:54:57] [WARNING] [io-service] Resources low
-[2026-04-17 01:54:57] [INFO] [db-service] Running smoothly
-[2026-04-17 01:54:57] [INFO] [db-service] Disconnected
-[2026-04-17 01:54:57] [INFO] [io-service] Running smoothly
-[2026-04-17 01:54:57] [WARNING] [dns-service] getting late
-[2026-04-17 01:54:57] [ERROR] [db-service] division by zero
-[2026-04-17 01:54:57] [INFO] [dns-service] Connected
-[2026-04-17 01:54:57] [INFO] [dns-service] Connected
-[2026-04-17 01:54:57] [INFO] [dns-service] Running smoothly"""
-    log_file.write_text(content, encoding="utf-8")
-
+def test_timestamp_type(default_log_file):
     from smartlog.parser import SmartLogParser
 
-    parser = SmartLogParser(str(log_file))
+    parser = SmartLogParser(str(default_log_file))
     result = parser.parse()
 
     assert pd.api.types.is_datetime64_any_dtype(result['timestamp'])
