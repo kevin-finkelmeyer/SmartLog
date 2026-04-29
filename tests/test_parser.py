@@ -1,5 +1,6 @@
 import pandas as pd
 import pytest
+from smartlog.parser import SmartLogParser
 
 
 @pytest.fixture
@@ -31,7 +32,6 @@ def test_single_valid_line(tmp_path):
 
     log_file.write_text(content, encoding="utf-8")
 
-    from smartlog.parser import SmartLogParser
     parser = SmartLogParser(str(log_file))
 
     result = parser.parse()
@@ -50,8 +50,6 @@ def test_single_invalid_line(tmp_path):
     content = "2024-01-01 12:00:00] [ERROR] [auth-service] Something failed"
 
     log_file.write_text(content, encoding="utf-8")
-
-    from smartlog.parser import SmartLogParser
 
     parser = SmartLogParser(str(log_file))
 
@@ -73,7 +71,6 @@ def test_empty_file(tmp_path):
 
     log_file.write_text(content, encoding="utf-8")
 
-    from smartlog.parser import SmartLogParser
 
     parser = SmartLogParser(str(log_file))
 
@@ -86,7 +83,6 @@ def test_empty_file(tmp_path):
 
 
 def test_some_invalid_lines(default_log_file):
-    from smartlog.parser import SmartLogParser
 
     parser = SmartLogParser(str(default_log_file))
 
@@ -97,7 +93,6 @@ def test_some_invalid_lines(default_log_file):
 
 
 def test_columns(default_log_file):
-    from smartlog.parser import SmartLogParser
 
     parser = SmartLogParser(str(default_log_file))
     result = parser.parse()
@@ -107,7 +102,6 @@ def test_columns(default_log_file):
 
 
 def test_timestamp_type(default_log_file):
-    from smartlog.parser import SmartLogParser
 
     parser = SmartLogParser(str(default_log_file))
     result = parser.parse()
