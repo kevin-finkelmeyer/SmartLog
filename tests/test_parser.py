@@ -1,11 +1,5 @@
-from datetime import datetime
-
 import pandas as pd
 import pytest
-
-
-def test_placeholder():
-    assert 1 == 1
 
 
 def test_single_valid_line(tmp_path):
@@ -134,6 +128,7 @@ def test_columns(tmp_path):
 
     expected_columns = ['timestamp', 'level', 'service', 'message']
     assert list(result.columns) == expected_columns
+
 
 def test_timestamp_type(tmp_path):
     directory = tmp_path / "logs"
